@@ -5,15 +5,15 @@
     <div class="row settings">
       <div class="break col-md-6">
         <p>BREAK LENGTH</p>
-        <button ng-click="breakIncrement(-1)" class="minus">-</button>
+        <button (click)="breakIncrement(-1)" class="minus">-</button>
         <span class="time">{{ breakLength }}</span>
-        <button ng-click="breakIncrement(1)" class="plus">+</button>
+        <button (click)="breakIncrement(1)" class="plus">+</button>
       </div>
       <div class="session col-md-6">
         <p>SESSION LENGTH</p>
-        <button ng-click="sessionIncrement(-1)" class="minus">-</button>
+        <button (click)="sessionIncrement(-1)" class="minus">-</button>
         <span class="time">{{ sessionLength }}</span>
-        <button ng-click="sessionIncrement(1)" class="plus">+</button>
+        <button (click)="sessionIncrement(1)" class="plus">+</button>
       </div>
     </div>
   </header>
