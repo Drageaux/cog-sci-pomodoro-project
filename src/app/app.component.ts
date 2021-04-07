@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { interval, Subscription, timer } from 'rxjs';
+import { interval, Observable, Subscription, timer } from 'rxjs';
 import { map, takeWhile } from 'rxjs/operators';
 
 enum SessionType {
@@ -15,24 +15,22 @@ enum SessionType {
 export class AppComponent {
   title = 'CogSciTeam10';
   breakLength = 5;
-  sessionLength = 25;
+  sessionLength = 90;
   sessionType = SessionType.SESSION;
-  timeLeft =
-    this.sessionType == SessionType.BREAK
-      ? this.breakLength
-      : this.sessionLength;
+  timeLeft;
   // fillHeight = '0%';
   // fillColor = '#7de891';
-  $timer: Subscription;
-  timerPaused = false;
+  $timer;
+  timerPaused = true;
 
   constructor() {
-    this.$timer = interval(1000)
-      .pipe(
-        takeWhile(() => !this.timerPaused),
-        map((e) => console.log(e))
-      )
-      .subscribe();
+    this.$timer = interval(1000).pipe(
+      takeWhile(() => !this.timerPaused && this.timeLeft > 0),
+      map(() => {
+        this.timeLeft -= 1;
+        // console.log()
+      })
+    );
   }
 
   breakIncrement(val: number) {
@@ -45,6 +43,17 @@ export class AppComponent {
 
   timerStartPause() {
     this.timerPaused = !this.timerPaused;
+
+    // start timer
+    if (!this.timerPaused) {
+      const minutes: number =
+        this.sessionType == SessionType.SESSION
+          ? this.sessionLength
+          : this.breakLength;
+
+      this.$timer.subscribe();
+      this.timeLeft = minutes * 60;
+    }
     // this.timerPaused ? this.$timer.unsubscribe() : this.$timer.subscribe();
     // const remainingTime = this.timeLeft;
     // console.log(remainingTime);
@@ -64,12 +73,11 @@ export class AppComponent {
     );
   }
 
+  calculateTimeLeft(minute: number) {
+    return new Date().setMinutes(minute);
+  }
+
   // get timeStarted() {
   //   // return this.$
   // }
-}
-function takeUntil(
-  timerPaused: boolean
-): import('rxjs').OperatorFunction<number, unknown> {
-  throw new Error('Function not implemented.');
 }

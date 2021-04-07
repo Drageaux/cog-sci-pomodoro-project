@@ -20,7 +20,9 @@
   <section (click)="timerStartPause()">
     <div class="timer">
       <p class="title">{{ sessionType }}</p>
-      <p>{{ timeLeft }}</p>
+      <p>
+        {{ displayTimeRemaining(timeLeft) }}
+      </p>
       <!-- <span
         [style]="{
           height: fillHeight,
