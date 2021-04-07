@@ -1,0 +1,30 @@
+<h2>Pomodoro Timer</h2>
+<main>
+  <br />
+  <header>
+    <div class="row settings">
+      <div class="break col-md-6">
+        <p>BREAK LENGTH</p>
+        <button ng-click="breakIncrement(-1)" class="minus">-</button>
+        <span class="time">{{ breakLength }}</span>
+        <button ng-click="breakIncrement(1)" class="plus">+</button>
+      </div>
+      <div class="session col-md-6">
+        <p>SESSION LENGTH</p>
+        <button ng-click="sessionIncrement(-1)" class="minus">-</button>
+        <span class="time">{{ sessionLength }}</span>
+        <button ng-click="sessionIncrement(1)" class="plus">+</button>
+      </div>
+    </div>
+  </header>
+  <!-- <section ng-click="timerStartStop()">
+    <div class="timer">
+      <p class="title">{{ sessionType }}</p>
+      <p>{{ timeLeft }}</p>
+      <span
+        ng-style="{ height: fillHeight, background: fillColor }"
+        class="fill"
+      ></span>
+    </div>
+  </section> -->
+</main>
