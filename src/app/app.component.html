@@ -17,14 +17,17 @@
       </div>
     </div>
   </header>
-  <!-- <section ng-click="timerStartStop()">
+  <section (click)="timerStartPause()">
     <div class="timer">
       <p class="title">{{ sessionType }}</p>
       <p>{{ timeLeft }}</p>
-      <span
-        ng-style="{ height: fillHeight, background: fillColor }"
+      <!-- <span
+        [style]="{
+          height: fillHeight,
+          background: fillColor
+        }"
         class="fill"
-      ></span>
+      ></span> -->
     </div>
-  </section> -->
+  </section>
 </main>
