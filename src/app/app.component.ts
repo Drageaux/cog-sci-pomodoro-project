@@ -15,23 +15,15 @@ enum SessionType {
 export class AppComponent {
   title = 'CogSciTeam10';
   breakLength = 5;
-  sessionLength = 90;
+  sessionLength = 1;
   sessionType = SessionType.SESSION;
   timeLeft;
-  // fillHeight = '0%';
-  // fillColor = '#7de891';
+  fillHeight = 0;
+  fillColor = '#7de891';
   $timer;
   timerPaused = true;
 
-  constructor() {
-    this.$timer = interval(1000).pipe(
-      takeWhile(() => !this.timerPaused && this.timeLeft > 0),
-      map(() => {
-        this.timeLeft -= 1;
-        // console.log()
-      })
-    );
-  }
+  constructor() {}
 
   breakIncrement(val: number) {
     this.breakLength += val;
@@ -51,19 +43,39 @@ export class AppComponent {
           ? this.sessionLength
           : this.breakLength;
 
-      this.$timer.subscribe();
       this.timeLeft = minutes * 60;
+      this.startObservableTimer();
+    } else {
+      this.clearObservableTimer();
     }
     // this.timerPaused ? this.$timer.unsubscribe() : this.$timer.subscribe();
     // const remainingTime = this.timeLeft;
     // console.log(remainingTime);
   }
 
-  displayTimeRemaining(d) {
-    d = Number(d);
-    var hours = Math.floor(d / 3600);
-    var minutes = Math.floor((d % 3600) / 60);
-    var seconds = Math.floor((d % 3600) % 60);
+  private startObservableTimer() {
+    this.$timer = interval(1000)
+      .pipe(
+        takeWhile(() => !this.timerPaused && this.timeLeft > 0),
+        map((e) => {
+          this.timeLeft -= 1;
+          const origTime = SessionType.SESSION
+            ? this.sessionLength * 60
+            : this.breakLength * 60;
+          this.fillHeight = (e / origTime) * 100;
+        })
+      )
+      .subscribe();
+  }
+
+  private clearObservableTimer() {
+    this.$timer.unsubscribe();
+  }
+
+  displayTimeRemaining(d: number) {
+    const hours = Math.floor(d / 3600);
+    const minutes = Math.floor((d % 3600) / 60);
+    const seconds = Math.floor((d % 3600) % 60);
     return (
       (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') +
       minutes +
@@ -71,10 +83,6 @@ export class AppComponent {
       (seconds < 10 ? '0' : '') +
       seconds
     );
-  }
-
-  calculateTimeLeft(minute: number) {
-    return new Date().setMinutes(minute);
   }
 
   // get timeStarted() {
