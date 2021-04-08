@@ -29,6 +29,7 @@
           type="text"
           placeholder="(Enter task name)"
           [(ngModel)]="currTaskName"
+          [ngModelOptions]="{ standalone: true }"
         />
       </form>
     </div>
@@ -55,10 +56,17 @@
     <div class="col-12">
       <table>
         <thead></thead>
+        <tbody>
+          <tr *ngFor="let sesh of sessions; let i = index">
+            <td>
+              {{ sesh | json }}
+            </td>
+          </tr>
+        </tbody>
       </table>
       <ul>
         <li *ngFor="let sesh of sessions; let i = index">
-          Session: {{ i + 1 }} {{ sesh.sessionElapsedTime }}
+          Session: {{ i + 1 }} {{ sesh | json }}
         </li>
       </ul>
     </div>

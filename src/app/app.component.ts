@@ -89,12 +89,14 @@ export class AppComponent {
   }
 
   private startObservableTimer($timer: Observable<number>) {
-    let newSession = new Session();
     $timer.subscribe(
       (e) => console.log(e),
       (err) => console.error(err),
       () => {
-        this.sessions.push(newSession);
+        // if (this.timeLeft <= 0) {
+        //   this.sessions.push(this.currSession);
+        // }
+        this.wrapUpSession();
         console.log('Timer finished');
       }
     );
@@ -104,9 +106,19 @@ export class AppComponent {
     // $timer.unsubscribe();
   }
 
+  private wrapUpSession() {
+    this.currSession = {
+      taskName: this.currTaskName,
+      sessionElapsedTime: this.sessionLength * 60 - this.timeLeft,
+    };
+
+    this.sessions.push(this.currSession);
+    this.currSession = new Session();
+  }
+
   private startBreakTimer() {}
 
-  displayTimeRemaining(d: number) {
+  renderTimeHmmss(d: number) {
     const hours = Math.floor(d / 3600);
     const minutes = Math.floor((d % 3600) / 60);
     const seconds = Math.floor((d % 3600) % 60);
@@ -121,6 +133,6 @@ export class AppComponent {
 
   get timeRemainingRendered() {
     // return this.$
-    return this.displayTimeRemaining(this.timeLeft);
+    return this.renderTimeHmmss(this.timeLeft);
   }
 }
