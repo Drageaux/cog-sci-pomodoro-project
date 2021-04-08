@@ -15,15 +15,26 @@ enum SessionType {
 export class AppComponent {
   title = 'CogSciTeam10';
   breakLength = 5;
-  sessionLength = 1;
+  sessionLength = 25;
   sessionType = SessionType.SESSION;
-  timeLeft;
+  private timeLeft;
   fillHeight = 0;
   fillColor = '#7de891';
-  $timer;
+  $sessionTimer;
+  $breakTimer;
   timerPaused = true;
 
-  constructor() {}
+  constructor() {
+    this.$sessionTimer = interval(1000).pipe(
+      takeWhile(() => !this.timerPaused && this.timeLeft > 0),
+      map((e) => {
+        this.timeLeft -= 1;
+        const origTime = this.sessionLength * 60;
+        this.fillHeight = (e / origTime) * 100;
+        return e;
+      })
+    );
+  }
 
   breakIncrement(val: number) {
     this.breakLength += val;
@@ -44,33 +55,28 @@ export class AppComponent {
           : this.breakLength;
 
       this.timeLeft = minutes * 60;
-      this.startObservableTimer();
+      this.startObservableTimer(this.$sessionTimer);
     } else {
-      this.clearObservableTimer();
+      this.clearObservableTimer(this.$sessionTimer);
     }
     // this.timerPaused ? this.$timer.unsubscribe() : this.$timer.subscribe();
     // const remainingTime = this.timeLeft;
     // console.log(remainingTime);
   }
 
-  private startObservableTimer() {
-    this.$timer = interval(1000)
-      .pipe(
-        takeWhile(() => !this.timerPaused && this.timeLeft > 0),
-        map((e) => {
-          this.timeLeft -= 1;
-          const origTime = SessionType.SESSION
-            ? this.sessionLength * 60
-            : this.breakLength * 60;
-          this.fillHeight = (e / origTime) * 100;
-        })
-      )
-      .subscribe();
+  private startObservableTimer($timer: Observable<number>) {
+    $timer.subscribe(
+      (e) => console.log(e),
+      (err) => console.error(err),
+      () => console.log('Timer finished')
+    );
   }
 
-  private clearObservableTimer() {
-    this.$timer.unsubscribe();
+  private clearObservableTimer($timer: Observable<number>) {
+    // $timer.unsubscribe();
   }
+
+  private startBreakTimer() {}
 
   displayTimeRemaining(d: number) {
     const hours = Math.floor(d / 3600);
@@ -85,7 +91,8 @@ export class AppComponent {
     );
   }
 
-  // get timeStarted() {
-  //   // return this.$
-  // }
+  get timeRemaining() {
+    // return this.$
+    return this.displayTimeRemaining(this.timeLeft);
+  }
 }
