@@ -7,6 +7,14 @@ enum SessionType {
   BREAK = 'Break',
 }
 
+class Session {
+  taskName: string = '';
+  sessionElapsedTime: number;
+  breakElapsedTime?: number;
+  stressLevel?: number;
+  taskDifficultyLevel?: number;
+}
+
 @Component({
   selector: 'app-root',
   templateUrl: './app.component.html',
@@ -14,17 +22,21 @@ enum SessionType {
 })
 export class AppComponent {
   title = 'Pomodoro Evaluator';
-  breakLength = 5;
   sessionType = SessionType.SESSION;
+
+  breakLength = 5;
+  $breakTimer;
 
   sessionRunning = false;
   sessionLength = 25;
   $sessionTimer;
+  sessions: Session[] = [];
+  currSession: Session = null;
+  currTaskName: string = '';
 
   private timeLeft = 0;
   fillHeight = 0;
   fillColor = '#7de891';
-  $breakTimer;
   timerPaused = true;
 
   constructor() {
@@ -77,10 +89,12 @@ export class AppComponent {
   }
 
   private startObservableTimer($timer: Observable<number>) {
+    let newSession = new Session();
     $timer.subscribe(
       (e) => console.log(e),
       (err) => console.error(err),
       () => {
+        this.sessions.push(newSession);
         console.log('Timer finished');
       }
     );

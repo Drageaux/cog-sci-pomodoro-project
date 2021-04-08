@@ -23,24 +23,44 @@
           +
         </button>
       </div>
+
+      <form>
+        <input
+          type="text"
+          placeholder="(Enter task name)"
+          [(ngModel)]="currTaskName"
+        />
+      </form>
     </div>
   </header>
-  <section (click)="timerStartPause()">
-    <div class="timer">
-      <div *ngIf="!timerPaused">
-        <p class="title">{{ sessionType }}</p>
-        <p>
-          {{ timeRemainingRendered }}
-        </p>
-        <span
-          [style.height]="fillHeight + '%'"
-          [style.background]="fillColor"
-          class="fill"
-        ></span>
+  <section class="container mx-auto row">
+    <div class="col-12">
+      <div class="timer" (click)="timerStartPause()">
+        <div *ngIf="!timerPaused">
+          <p class="title">{{ sessionType }}</p>
+          <p>
+            {{ timeRemainingRendered }}
+          </p>
+          <span
+            [style.height]="fillHeight + '%'"
+            [style.background]="fillColor"
+            class="fill"
+          ></span>
+        </div>
+        <div *ngIf="timerPaused">
+          <!-- TODO: play button here -->
+        </div>
       </div>
-      <div *ngIf="timerPaused">
-        <!-- TODO: play button here -->
-      </div>
+    </div>
+    <div class="col-12">
+      <table>
+        <thead></thead>
+      </table>
+      <ul>
+        <li *ngFor="let sesh of sessions; let i = index">
+          Session: {{ i + 1 }} {{ sesh.sessionElapsedTime }}
+        </li>
+      </ul>
     </div>
   </section>
 </main>
