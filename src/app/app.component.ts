@@ -13,14 +13,17 @@ enum SessionType {
   styleUrls: ['./app.component.scss'],
 })
 export class AppComponent {
-  title = 'CogSciTeam10';
+  title = 'Pomodoro Evaluator';
   breakLength = 5;
-  sessionLength = 25;
   sessionType = SessionType.SESSION;
-  private timeLeft;
+
+  sessionRunning = false;
+  sessionLength = 25;
+  $sessionTimer;
+
+  private timeLeft = 0;
   fillHeight = 0;
   fillColor = '#7de891';
-  $sessionTimer;
   $breakTimer;
   timerPaused = true;
 
@@ -30,6 +33,16 @@ export class AppComponent {
       map((e) => {
         this.timeLeft -= 1;
         const origTime = this.sessionLength * 60;
+        this.fillHeight = (e / origTime) * 100;
+        return e;
+      })
+    );
+
+    this.$breakTimer = interval(1000).pipe(
+      takeWhile(() => !this.timerPaused && this.timeLeft > 0),
+      map((e) => {
+        this.timeLeft -= 1;
+        const origTime = this.breakLength * 60;
         this.fillHeight = (e / origTime) * 100;
         return e;
       })
@@ -49,12 +62,11 @@ export class AppComponent {
 
     // start timer
     if (!this.timerPaused) {
-      const minutes: number =
-        this.sessionType == SessionType.SESSION
-          ? this.sessionLength
-          : this.breakLength;
-
-      this.timeLeft = minutes * 60;
+      if (this.timeLeft > 0) {
+      } else {
+        const minutes: number = this.sessionLength;
+        this.timeLeft = minutes * 60;
+      }
       this.startObservableTimer(this.$sessionTimer);
     } else {
       this.clearObservableTimer(this.$sessionTimer);
@@ -68,7 +80,9 @@ export class AppComponent {
     $timer.subscribe(
       (e) => console.log(e),
       (err) => console.error(err),
-      () => console.log('Timer finished')
+      () => {
+        console.log('Timer finished');
+      }
     );
   }
 
@@ -91,7 +105,7 @@ export class AppComponent {
     );
   }
 
-  get timeRemaining() {
+  get timeRemainingRendered() {
     // return this.$
     return this.displayTimeRemaining(this.timeLeft);
   }
