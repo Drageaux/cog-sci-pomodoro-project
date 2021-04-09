@@ -1,9 +1,10 @@
 <h2>Pomodoro Timer</h2>
-<main>
+<main class="text-white">
   <br />
+  <!-- Settings -->
   <header>
     <div class="row settings" [class.hide]="!timerPaused">
-      <div class="break col-md-6">
+      <div class="break col-12">
         <p>BREAK LENGTH</p>
         <button (click)="timerPaused && breakIncrement(-1)" class="minus">
           -
@@ -13,7 +14,7 @@
           +
         </button>
       </div>
-      <div class="session col-md-6">
+      <div class="session col-12">
         <p>SESSION LENGTH</p>
         <button (click)="timerPaused && sessionIncrement(-1)" class="minus">
           -
@@ -24,7 +25,7 @@
         </button>
       </div>
 
-      <form>
+      <form class="col-12">
         <input
           type="text"
           placeholder="(Enter task name)"
@@ -34,7 +35,9 @@
       </form>
     </div>
   </header>
-  <section class="container mx-auto row">
+
+  <!-- Timer Button -->
+  <section class="container mx-auto mt-2 row">
     <div class="col-12">
       <div class="timer" (click)="timerStartPause()">
         <div *ngIf="!timerPaused">
@@ -53,22 +56,51 @@
         </div>
       </div>
     </div>
-    <div class="col-12">
-      <table>
-        <thead></thead>
+    <div *ngIf="currSession" class="row col-12 mt-4">
+      <div class="col-6">{{ currSession | json }}</div>
+      <div class="col-6">
+        <button (click)="wrapUpSession()" class="btn btn-md btn-success">
+          Wrap up Session early
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- Result -->
+  <section class="mt-5">
+    <div class="col-12 table-responsive">
+      <table class="table text-white">
+        <thead>
+          <th scope="col">#</th>
+          <th scope="col">Task Name</th>
+          <th scope="col">Session Length</th>
+          <th scope="col">Break Length</th>
+          <th scope="col">Focus</th>
+          <th scope="col">Stress</th>
+          <th scope="col">Productivity</th>
+        </thead>
         <tbody>
           <tr *ngFor="let sesh of sessions; let i = index">
+            <td>Session {{ i + 1 }} {{ sesh | json }}</td>
+            <td>{{ sesh.taskName }}</td>
             <td>
-              {{ sesh | json }}
+              {{ renderTimeHmmss(sesh.sessionElapsedTime) }}
+            </td>
+            <td>
+              {{ renderTimeHmmss(sesh.breakElapsedTime) }}
+            </td>
+            <td>
+              {{ sesh.focusLevel }}
+            </td>
+            <td>
+              {{ sesh.stressLevel }}
+            </td>
+            <td>
+              {{ sesh.productivityLevel }}
             </td>
           </tr>
         </tbody>
       </table>
-      <ul>
-        <li *ngFor="let sesh of sessions; let i = index">
-          Session: {{ i + 1 }} {{ sesh | json }}
-        </li>
-      </ul>
     </div>
   </section>
 </main>

@@ -13,7 +13,7 @@ class Session {
   breakElapsedTime?: number; // in seconds
   productivityLevel?: number; // out of 5
   stressLevel?: number; // out of 5
-  taskDifficultyLevel?: number; // out of 5
+  focusLevel?: number; // out of 5
 }
 
 @Component({
@@ -106,29 +106,36 @@ export class AppComponent {
     // $timer.unsubscribe();
   }
 
-  private wrapUpSession() {
+  public wrapUpSession() {
     this.currSession = {
       taskName: this.currTaskName,
       sessionElapsedTime: this.sessionLength * 60 - this.timeLeft,
     };
-
     this.sessions.push(this.currSession);
-    this.currSession = new Session();
+
+    // reset vars
+    this.currSession = null;
+    this.timeLeft = 0;
+    this.currTaskName = '';
   }
 
   private startBreakTimer() {}
 
   renderTimeHmmss(d: number) {
-    const hours = Math.floor(d / 3600);
-    const minutes = Math.floor((d % 3600) / 60);
-    const seconds = Math.floor((d % 3600) % 60);
-    return (
-      (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') +
-      minutes +
-      ':' +
-      (seconds < 10 ? '0' : '') +
-      seconds
-    );
+    if (d > 0) {
+      const hours = Math.floor(d / 3600);
+      const minutes = Math.floor((d % 3600) / 60);
+      const seconds = Math.floor((d % 3600) % 60);
+      return (
+        (hours > 0 ? hours + ':' + (minutes < 10 ? '0' : '') : '') +
+        minutes +
+        ':' +
+        (seconds < 10 ? '0' : '') +
+        seconds
+      );
+    } else {
+      return '0:00';
+    }
   }
 
   get timeRemainingRendered() {
