@@ -61,11 +61,11 @@ export class AppComponent {
       ),
       map((e) => {
         if (!this.timerPaused) {
-          this.timeLeft -= 1;
           const origTime = this.sessionLength * 60;
-          this.fillHeight = (e / origTime) * 100;
+          this.fillHeight = (this.currPom.sessionElapsedTime / origTime) * 100;
+          return 1;
         }
-        return e;
+        return 0;
       })
     );
 
@@ -80,9 +80,10 @@ export class AppComponent {
         if (!this.timerPaused) {
           this.timeLeft -= 1;
           const origTime = this.breakLength * 60;
-          this.fillHeight = (e / origTime) * 100;
+          this.fillHeight = (this.currPom.breakElapsedTime / origTime) * 100;
+          return 1;
         }
-        return e;
+        return 0;
       })
     );
   }
@@ -95,8 +96,8 @@ export class AppComponent {
     this.sessionLength += val;
   }
 
-  timerStartPause() {
-    // toggle paused/start
+  timerToggle() {
+    // toggle paused/started
     this.timerPaused = !this.timerPaused;
 
     // if just started
@@ -132,22 +133,29 @@ export class AppComponent {
 
   private startPomodoro() {
     this.pomodoroSubscription = this.$sessionTimer.subscribe({
-      next: () => this.currPom.sessionElapsedTime++,
-      error: (err) => console.error(err),
+      next: (e) => {
+        this.currPom.sessionElapsedTime += e;
+        this.timeLeft -= e;
+      },
+      error: console.error,
       complete: () => {
         this.wrapUpSession();
         console.log('Session finished. Begin break.');
         // begin break
         this.timerType = TimerType.BREAK;
         this.setupTimer(); // should call to restart timer
-        this.$breakTimer.subscribe(
-          () => this.currPom.breakElapsedTime++,
-          console.error,
-          () => {
+        this.$breakTimer.subscribe({
+          next: (e) => {
+            this.currPom.breakElapsedTime += e;
+            this.timeLeft -= e;
+          },
+          error: console.error,
+          complete: () => {
+            this.wrapUpBreak();
             this.wrapUpPom();
             console.log('Pomodoro done!');
-          }
-        );
+          },
+        });
       },
     });
   }
