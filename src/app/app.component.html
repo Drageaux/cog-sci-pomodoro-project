@@ -26,8 +26,9 @@
 
       <form class="col-12">
         <input
+          class="form-control"
           type="text"
-          placeholder="(Enter task name)"
+          placeholder="(Enter optional task name)"
           [(ngModel)]="currTaskName"
           [ngModelOptions]="{ standalone: true }"
         />
@@ -57,13 +58,10 @@
         <div class="title" *ngIf="!sessionRunning">Start New</div>
       </div>
     </div>
-    <div *ngIf="currSession" class="row col-12 mt-4">
-      <div class="col-6">{{ currSession | json }}</div>
-      <div class="col-6">
-        <button (click)="wrapUpSession()" class="btn btn-md btn-success">
-          Wrap up Session early
-        </button>
-      </div>
+    <div *ngIf="currSession" class="col-12 mt-4">
+      <button (click)="wrapUpSession()" class="btn btn-md btn-outline-danger">
+        Wrap up Session early
+      </button>
     </div>
   </section>
 
