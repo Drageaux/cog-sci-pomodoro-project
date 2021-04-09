@@ -144,6 +144,11 @@
           </tr>
         </tbody>
       </table>
+      <div *ngIf="poms.length > 0">
+        <button (click)="clearStorageBtn()" class="btn btn-md btn-danger my-4">
+          Delete Entries
+        </button>
+      </div>
     </div>
   </section>
 </main>

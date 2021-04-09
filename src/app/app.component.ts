@@ -58,6 +58,7 @@ export class AppComponent {
       this.poms.every((e) => e);
     } catch {
       console.warn('Could not parse saved Pomodoros in local storage.');
+      this.clearStorage();
       this.poms = [];
     }
 
@@ -231,7 +232,14 @@ export class AppComponent {
   /*************************************************************************/
   /****************************** FIELD INPUTS *****************************/
   /*************************************************************************/
-  clearStorage() {
+  private clearStorage() {
     localStorage.removeItem('poms');
+  }
+
+  clearStorageBtn() {
+    if (confirm('Are you sure to delete all Pomodoro entries?')) {
+      this.poms = [];
+      this.clearStorage();
+    }
   }
 }
