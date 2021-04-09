@@ -51,16 +51,24 @@
             class="fill"
           ></span>
         </div>
-        <div class="title" *ngIf="pomodoroRunning && timerPaused">
-          <!-- TODO: play button here -->
-          Resume
-        </div>
+        <div class="title" *ngIf="pomodoroRunning && timerPaused">Resume</div>
         <div class="title" *ngIf="!pomodoroRunning">Start New</div>
       </div>
     </div>
     <div *ngIf="currPom" class="col-12 mt-4">
-      <button (click)="wrapUpPom()" class="btn btn-md btn-outline-danger">
+      <button
+        *ngIf="timerType === TimerType.SESSION"
+        (click)="wrapUpSession()"
+        class="btn btn-md btn-outline-danger"
+      >
         Wrap up Session early
+      </button>
+      <button
+        *ngIf="timerType === TimerType.BREAK"
+        (click)="wrapUpBreak()"
+        class="btn btn-md btn-outline-warning"
+      >
+        Skip Break
       </button>
       {{ currPom | json }}
     </div>

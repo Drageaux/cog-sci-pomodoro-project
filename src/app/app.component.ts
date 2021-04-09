@@ -32,6 +32,7 @@ export class AppComponent {
 
   // POMODORO
   private timeLeft = null;
+  TimerType = TimerType;
   timerType = TimerType.SESSION;
   pomodoroSubscription: Subscription;
   pomodoroRunning = false;
@@ -113,16 +114,11 @@ export class AppComponent {
         // making sure starting Pom with a work session
         this.timerType = TimerType.SESSION;
         this.setupTimer(); // should call to restart timer
-        this.startPomodoro(this.pomodoroSubscription);
+        this.startPomodoro();
       }
     } else {
       console.log(`Paused: time left = ${this.timeLeft}s`);
-      // console.log(this.sessionTimerSubscription.);
-      // this.clearObservableTimer(this.sessionTimerSubscription);
     }
-    // this.timerPaused ? this.$timer.unsubscribe() : this.$timer.subscribe();
-    // const remainingTime = this.timeLeft;
-    // console.log(remainingTime);
   }
 
   private setupTimer() {
@@ -131,19 +127,19 @@ export class AppComponent {
       this.timerType == TimerType.SESSION
         ? this.sessionLength
         : this.breakLength;
-    // since it takes 1s for interval() to update, just go ahead and decrement by 1
-    // because when it's 0, it needs to perform a final check at 0 second anyways
-    this.timeLeft = minutes - 1;
+    this.timeLeft = minutes;
   }
 
-  private startPomodoro(sub: Subscription) {
-    this.pomodoroSubscription = this.$sessionTimer.pipe().subscribe(
-      (e) => this.currPom.sessionElapsedTime++,
-      (err) => console.error(err),
-      () => {
+  private startPomodoro() {
+    this.pomodoroSubscription = this.$sessionTimer.subscribe({
+      next: () => this.currPom.sessionElapsedTime++,
+      error: (err) => console.error(err),
+      complete: () => {
+        this.wrapUpSession();
         console.log('Session finished. Begin break.');
+        // begin break
         this.timerType = TimerType.BREAK;
-        this.setupTimer();
+        this.setupTimer(); // should call to restart timer
         this.$breakTimer.subscribe(
           () => this.currPom.breakElapsedTime++,
           console.error,
@@ -152,8 +148,20 @@ export class AppComponent {
             console.log('Pomodoro done!');
           }
         );
-      }
-    );
+      },
+    });
+  }
+
+  public wrapUpSession() {
+    if (this.timerType === TimerType.SESSION) {
+      this.timeLeft = 0;
+    }
+  }
+
+  public wrapUpBreak() {
+    if (this.timerType === TimerType.BREAK) {
+      this.timeLeft = 0;
+    }
   }
 
   public wrapUpPom() {
