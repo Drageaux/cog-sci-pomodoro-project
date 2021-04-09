@@ -89,7 +89,7 @@
         </thead>
         <tbody>
           <tr *ngFor="let p of poms; let i = index">
-            <td>Pomodoro {{ i + 1 }} {{ p | json }}</td>
+            <td>Pomodoro {{ i + 1 }}</td>
             <td>{{ p.taskName }}</td>
             <td>
               {{ renderTimeHmmss(p.sessionElapsedTime) }}
