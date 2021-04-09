@@ -1,5 +1,5 @@
 import { Component } from '@angular/core';
-import { interval, Observable, Subscription, timer } from 'rxjs';
+import { iif, interval, Observable, Subscription, timer } from 'rxjs';
 import {
   map,
   skipWhile,
@@ -15,8 +15,8 @@ enum SessionType {
 
 class Session {
   taskName: string = '';
-  sessionElapsedTime: number; // in seconds
-  breakElapsedTime?: number; // in seconds
+  sessionElapsedTime: number = 0; // in seconds
+  breakElapsedTime: number = 0; // in seconds
   productivityLevel?: number; // out of 5
   stressLevel?: number; // out of 5
   focusLevel?: number; // out of 5
@@ -35,7 +35,8 @@ export class AppComponent {
   breakLength = 5;
   $breakTimer;
 
-  sessionRunning = false;
+  pomodoroRunning = false;
+
   sessionLength = 25;
   $sessionTimer;
   sessionTimerSubscription: Subscription;
@@ -50,13 +51,12 @@ export class AppComponent {
 
   constructor() {
     this.$sessionTimer = interval(1000).pipe(
-      takeWhile(() => {
-        if (this.sessionRunning && this.timeLeft > 0) {
-          return true;
-        }
-        this.sessionType = SessionType.BREAK;
-        return false;
-      }),
+      takeWhile(
+        () =>
+          this.pomodoroRunning &&
+          this.sessionType === SessionType.SESSION &&
+          this.timeLeft > 0
+      ),
       map((e) => {
         if (!this.timerPaused) {
           this.timeLeft -= 1;
@@ -68,7 +68,12 @@ export class AppComponent {
     );
 
     this.$breakTimer = interval(1000).pipe(
-      takeWhile(() => this.breakRunning && this.timeLeft > 0),
+      takeWhile(
+        () =>
+          this.pomodoroRunning &&
+          this.sessionType === SessionType.BREAK &&
+          this.timeLeft > 0
+      ),
       map((e) => {
         if (!this.timerPaused) {
           this.timeLeft -= 1;
@@ -98,7 +103,8 @@ export class AppComponent {
       } else if (this.timeLeft == null) {
         // start new timer
         this.currSession = new Session();
-        this.startNewTimer(SessionType.SESSION);
+        this.sessionType = SessionType.SESSION;
+        this.startNewTimer();
         this.startObservableTimer(this.sessionTimerSubscription);
       }
     } else {
@@ -111,33 +117,34 @@ export class AppComponent {
     // console.log(remainingTime);
   }
 
-  private startNewTimer(type: SessionType) {
+  private startNewTimer() {
     this.timeLeft = 0;
-    this.sessionRunning = true;
+    this.pomodoroRunning = true;
     const minutes: number =
-      type == SessionType.SESSION ? this.sessionLength : this.breakLength;
+      this.sessionType == SessionType.SESSION
+        ? this.sessionLength
+        : this.breakLength;
     this.timeLeft = minutes;
   }
 
   private startObservableTimer(sub: Subscription) {
-    this.sessionTimerSubscription = this.$sessionTimer
-      .pipe(
-        skipWhile(() => this.sessionType == SessionType.SESSION),
-        switchMap((e) => {
-          console.log('Session finished. Begin break.', e);
-          this.breakRunning;
-          this.startNewTimer(SessionType.BREAK);
-          return this.$breakTimer;
-        })
-      )
-      .subscribe(
-        (e) => console.log(e),
-        (err) => console.error(err),
-        () => {
-          console.log('Pomodoro done');
-          this.wrapUpSession();
-        }
-      );
+    this.sessionTimerSubscription = this.$sessionTimer.pipe().subscribe(
+      (e) => this.currSession.sessionElapsedTime++,
+      (err) => console.error(err),
+      () => {
+        console.log('Session finished. Begin break.');
+        this.sessionType = SessionType.BREAK;
+        this.startNewTimer();
+        this.$breakTimer.subscribe(
+          () => this.currSession.breakElapsedTime++,
+          console.error,
+          () => {
+            this.wrapUpSession();
+            console.log('Pomodoro done');
+          }
+        );
+      }
+    );
   }
 
   private clearObservableTimer(sub: Subscription) {
@@ -150,12 +157,10 @@ export class AppComponent {
     }
     console.log('Wrapping up session');
     this.sessionTimerSubscription.unsubscribe();
-    this.currSession = {
-      taskName: this.currTaskName,
-      sessionElapsedTime: this.sessionLength * 60 - this.timeLeft,
-    };
+    this.currSession.taskName = this.currTaskName;
+    // sessionElapsedTime: this.sessionLength * 60 - this.timeLeft,
     this.sessions.push(this.currSession);
-    this.sessionRunning = false;
+    this.pomodoroRunning = false;
     this.breakRunning = false;
 
     // reset vars

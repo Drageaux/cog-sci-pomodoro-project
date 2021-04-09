@@ -3,7 +3,7 @@
   <br />
   <!-- Settings -->
   <header>
-    <div class="row settings" [class.hide]="sessionRunning">
+    <div class="row settings" [class.hide]="pomodoroRunning">
       <div class="break col-12">
         <p>BREAK LENGTH</p>
         <button (click)="breakLength && breakIncrement(-1)" class="minus">
@@ -40,7 +40,7 @@
   <section class="container mx-auto mt-2 row">
     <div class="col-12">
       <div class="timer" (click)="timerStartPause()">
-        <div *ngIf="sessionRunning && !timerPaused">
+        <div *ngIf="pomodoroRunning && !timerPaused">
           <p class="title">{{ sessionType }}</p>
           <p>
             {{ timeRemainingRendered }}
@@ -51,17 +51,18 @@
             class="fill"
           ></span>
         </div>
-        <div class="title" *ngIf="sessionRunning && timerPaused">
+        <div class="title" *ngIf="pomodoroRunning && timerPaused">
           <!-- TODO: play button here -->
           Resume
         </div>
-        <div class="title" *ngIf="!sessionRunning">Start New</div>
+        <div class="title" *ngIf="!pomodoroRunning">Start New</div>
       </div>
     </div>
     <div *ngIf="currSession" class="col-12 mt-4">
       <button (click)="wrapUpSession()" class="btn btn-md btn-outline-danger">
         Wrap up Session early
       </button>
+      {{ currSession | json }}
     </div>
   </section>
 
