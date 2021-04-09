@@ -25,6 +25,7 @@ export class AppComponent {
   title = 'Pomodoro Evaluator';
   sessionType = SessionType.SESSION;
 
+  breakRunning = false;
   breakLength = 5;
   $breakTimer;
 
@@ -43,7 +44,7 @@ export class AppComponent {
 
   constructor() {
     this.$sessionTimer = interval(1000).pipe(
-      takeWhile(() => this.sessionRunning),
+      takeWhile(() => this.sessionRunning && this.timeLeft > 0),
       map((e) => {
         if (!this.timerPaused) {
           this.timeLeft -= 1;
@@ -55,11 +56,13 @@ export class AppComponent {
     );
 
     this.$breakTimer = interval(1000).pipe(
-      takeWhile(() => !this.timerPaused && this.timeLeft > 0),
+      takeWhile(() => this.breakRunning && this.timeLeft > 0),
       map((e) => {
-        this.timeLeft -= 1;
-        const origTime = this.breakLength * 60;
-        this.fillHeight = (e / origTime) * 100;
+        if (!this.timerPaused) {
+          this.timeLeft -= 1;
+          const origTime = this.breakLength * 60;
+          this.fillHeight = (e / origTime) * 100;
+        }
         return e;
       })
     );
@@ -102,18 +105,14 @@ export class AppComponent {
       (e) => null,
       (err) => console.error(err),
       () => {
-        console.log(this.timeLeft);
-
-        if (this.timeLeft <= 0 || !this.sessionRunning) {
-          this.wrapUpSession();
-        }
         console.log('Timer finished');
+        this.wrapUpSession();
       }
     );
   }
 
   private clearObservableTimer(sub: Subscription) {
-    // sub.unsubscribe();
+    sub.unsubscribe();
   }
 
   public wrapUpSession() {
@@ -121,6 +120,7 @@ export class AppComponent {
       return;
     }
     console.log('Wrapping up session');
+    this.sessionTimerSubscription.unsubscribe();
     this.currSession = {
       taskName: this.currTaskName,
       sessionElapsedTime: this.sessionLength * 60 - this.timeLeft,
