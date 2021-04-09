@@ -78,7 +78,6 @@ export class AppComponent {
       ),
       map((e) => {
         if (!this.timerPaused) {
-          this.timeLeft -= 1;
           const origTime = this.breakLength * 60;
           this.fillHeight = (this.currPom.breakElapsedTime / origTime) * 100;
           return 1;
