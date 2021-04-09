@@ -6,23 +6,22 @@
     <div class="row settings" [class.hide]="sessionRunning">
       <div class="break col-12">
         <p>BREAK LENGTH</p>
-        <button (click)="timerPaused && breakIncrement(-1)" class="minus">
+        <button (click)="breakLength && breakIncrement(-1)" class="minus">
           -
         </button>
         <span class="time">{{ breakLength }}</span>
-        <button (click)="timerPaused && breakIncrement(1)" class="plus">
-          +
-        </button>
+        <button (click)="breakIncrement(1)" class="plus">+</button>
       </div>
       <div class="session col-12">
         <p>SESSION LENGTH</p>
-        <button (click)="timerPaused && sessionIncrement(-1)" class="minus">
+        <button
+          (click)="sessionLength > 0 && sessionIncrement(-1)"
+          class="minus"
+        >
           -
         </button>
         <span class="time">{{ sessionLength }}</span>
-        <button (click)="timerPaused && sessionIncrement(1)" class="plus">
-          +
-        </button>
+        <button (click)="sessionIncrement(1)" class="plus">+</button>
       </div>
 
       <form class="col-12">
@@ -40,7 +39,7 @@
   <section class="container mx-auto mt-2 row">
     <div class="col-12">
       <div class="timer" (click)="timerStartPause()">
-        <div *ngIf="!timerPaused">
+        <div *ngIf="sessionRunning && !timerPaused">
           <p class="title">{{ sessionType }}</p>
           <p>
             {{ timeRemainingRendered }}
@@ -51,17 +50,11 @@
             class="fill"
           ></span>
         </div>
-        <div
-          *ngIf="sessionRunning && timerPaused"
-          style="
-             {
-              margin-top: 50%;
-            }
-          "
-        >
+        <div class="title" *ngIf="sessionRunning && timerPaused">
           <!-- TODO: play button here -->
           Resume
         </div>
+        <div class="title" *ngIf="!sessionRunning">Start New</div>
       </div>
     </div>
     <div *ngIf="currSession" class="row col-12 mt-4">

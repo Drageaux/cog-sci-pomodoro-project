@@ -86,7 +86,7 @@ export class AppComponent {
       } else if (this.timeLeft == null) {
         this.sessionRunning = true;
         const minutes: number = this.sessionLength;
-        this.timeLeft = minutes * 60;
+        this.timeLeft = minutes;
         this.currSession = new Session();
         this.startObservableTimer(this.sessionTimerSubscription);
       }
@@ -129,6 +129,7 @@ export class AppComponent {
     this.sessionRunning = false;
 
     // reset vars
+    this.timerPaused = true;
     this.currSession = null;
     this.timeLeft = null;
     this.currTaskName = '';
