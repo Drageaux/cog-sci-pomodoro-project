@@ -1,6 +1,12 @@
 import { Component } from '@angular/core';
 import { interval, Observable, Subscription, timer } from 'rxjs';
-import { map, takeWhile } from 'rxjs/operators';
+import {
+  map,
+  skipWhile,
+  switchMap,
+  takeUntil,
+  takeWhile,
+} from 'rxjs/operators';
 
 enum SessionType {
   SESSION = 'Session',
@@ -44,7 +50,13 @@ export class AppComponent {
 
   constructor() {
     this.$sessionTimer = interval(1000).pipe(
-      takeWhile(() => this.sessionRunning && this.timeLeft > 0),
+      takeWhile(() => {
+        if (this.sessionRunning && this.timeLeft > 0) {
+          return true;
+        }
+        this.sessionType = SessionType.BREAK;
+        return false;
+      }),
       map((e) => {
         if (!this.timerPaused) {
           this.timeLeft -= 1;
@@ -84,10 +96,9 @@ export class AppComponent {
       if (this.timeLeft > 0) {
         console.log(`Resumed: time left = ${this.timeLeft}s`);
       } else if (this.timeLeft == null) {
-        this.sessionRunning = true;
-        const minutes: number = this.sessionLength;
-        this.timeLeft = minutes;
+        // start new timer
         this.currSession = new Session();
+        this.startNewTimer(SessionType.SESSION);
         this.startObservableTimer(this.sessionTimerSubscription);
       }
     } else {
@@ -100,15 +111,33 @@ export class AppComponent {
     // console.log(remainingTime);
   }
 
+  private startNewTimer(type: SessionType) {
+    this.timeLeft = 0;
+    this.sessionRunning = true;
+    const minutes: number =
+      type == SessionType.SESSION ? this.sessionLength : this.breakLength;
+    this.timeLeft = minutes;
+  }
+
   private startObservableTimer(sub: Subscription) {
-    this.sessionTimerSubscription = this.$sessionTimer.subscribe(
-      (e) => null,
-      (err) => console.error(err),
-      () => {
-        console.log('Timer finished');
-        this.wrapUpSession();
-      }
-    );
+    this.sessionTimerSubscription = this.$sessionTimer
+      .pipe(
+        skipWhile(() => this.sessionType == SessionType.SESSION),
+        switchMap((e) => {
+          console.log('Session finished. Begin break.', e);
+          this.breakRunning;
+          this.startNewTimer(SessionType.BREAK);
+          return this.$breakTimer;
+        })
+      )
+      .subscribe(
+        (e) => console.log(e),
+        (err) => console.error(err),
+        () => {
+          console.log('Pomodoro done');
+          this.wrapUpSession();
+        }
+      );
   }
 
   private clearObservableTimer(sub: Subscription) {
@@ -127,6 +156,7 @@ export class AppComponent {
     };
     this.sessions.push(this.currSession);
     this.sessionRunning = false;
+    this.breakRunning = false;
 
     // reset vars
     this.timerPaused = true;
