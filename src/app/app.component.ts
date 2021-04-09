@@ -8,12 +8,12 @@ import {
   takeWhile,
 } from 'rxjs/operators';
 
-enum SessionType {
+enum TimerType {
   SESSION = 'Session',
   BREAK = 'Break',
 }
 
-class Session {
+class Pomodoro {
   taskName: string = '';
   sessionElapsedTime: number = 0; // in seconds
   breakElapsedTime: number = 0; // in seconds
@@ -29,32 +29,33 @@ class Session {
 })
 export class AppComponent {
   title = 'Pomodoro Evaluator';
-  sessionType = SessionType.SESSION;
 
-  breakRunning = false;
+  // POMODORO
+  private timeLeft = null;
+  timerType = TimerType.SESSION;
+  pomodoroSubscription: Subscription;
+  pomodoroRunning = false;
+  timerPaused = true;
+  poms: Pomodoro[] = [];
+  currPom: Pomodoro = null;
+  currTaskName: string = '';
+  // break
   breakLength = 5;
   $breakTimer;
-
-  pomodoroRunning = false;
-
+  // work session
   sessionLength = 25;
   $sessionTimer;
-  sessionTimerSubscription: Subscription;
-  sessions: Session[] = [];
-  currSession: Session = null;
-  currTaskName: string = '';
 
-  private timeLeft = null;
+  // styling
   fillHeight = 0;
   fillColor = '#7de891';
-  timerPaused = true;
 
   constructor() {
     this.$sessionTimer = interval(1000).pipe(
       takeWhile(
         () =>
           this.pomodoroRunning &&
-          this.sessionType === SessionType.SESSION &&
+          this.timerType === TimerType.SESSION &&
           this.timeLeft > 0
       ),
       map((e) => {
@@ -71,7 +72,7 @@ export class AppComponent {
       takeWhile(
         () =>
           this.pomodoroRunning &&
-          this.sessionType === SessionType.BREAK &&
+          this.timerType === TimerType.BREAK &&
           this.timeLeft > 0
       ),
       map((e) => {
@@ -94,18 +95,25 @@ export class AppComponent {
   }
 
   timerStartPause() {
+    // toggle paused/start
     this.timerPaused = !this.timerPaused;
 
-    // start timer
+    // if just started
     if (!this.timerPaused) {
+      // still time left
       if (this.timeLeft > 0) {
         console.log(`Resumed: time left = ${this.timeLeft}s`);
-      } else if (this.timeLeft == null) {
-        // start new timer
-        this.currSession = new Session();
-        this.sessionType = SessionType.SESSION;
-        this.startNewTimer();
-        this.startObservableTimer(this.sessionTimerSubscription);
+      }
+      // timer not started yet
+      else if (this.timeLeft == null) {
+        // start new Pomodoro
+        this.currPom = new Pomodoro();
+        // TODO: probably could check if running by checking if currPom is not null
+        this.pomodoroRunning = true;
+        // making sure starting Pom with a work session
+        this.timerType = TimerType.SESSION;
+        this.setupTimer(); // should call to restart timer
+        this.startPomodoro(this.pomodoroSubscription);
       }
     } else {
       console.log(`Paused: time left = ${this.timeLeft}s`);
@@ -117,60 +125,54 @@ export class AppComponent {
     // console.log(remainingTime);
   }
 
-  private startNewTimer() {
+  private setupTimer() {
     this.timeLeft = 0;
-    this.pomodoroRunning = true;
     const minutes: number =
-      this.sessionType == SessionType.SESSION
+      this.timerType == TimerType.SESSION
         ? this.sessionLength
         : this.breakLength;
+    // since it takes 1s for interval() to update, just go ahead and decrement by 1
+    // because when it's 0, it needs to perform a final check at 0 second anyways
     this.timeLeft = minutes - 1;
   }
 
-  private startObservableTimer(sub: Subscription) {
-    this.sessionTimerSubscription = this.$sessionTimer.pipe().subscribe(
-      (e) => this.currSession.sessionElapsedTime++,
+  private startPomodoro(sub: Subscription) {
+    this.pomodoroSubscription = this.$sessionTimer.pipe().subscribe(
+      (e) => this.currPom.sessionElapsedTime++,
       (err) => console.error(err),
       () => {
         console.log('Session finished. Begin break.');
-        this.sessionType = SessionType.BREAK;
-        this.startNewTimer();
+        this.timerType = TimerType.BREAK;
+        this.setupTimer();
         this.$breakTimer.subscribe(
-          () => this.currSession.breakElapsedTime++,
+          () => this.currPom.breakElapsedTime++,
           console.error,
           () => {
-            this.wrapUpSession();
-            console.log('Pomodoro done');
+            this.wrapUpPom();
+            console.log('Pomodoro done!');
           }
         );
       }
     );
   }
 
-  private clearObservableTimer(sub: Subscription) {
-    sub.unsubscribe();
-  }
-
-  public wrapUpSession() {
+  public wrapUpPom() {
     if (this.timeLeft == this.sessionLength * 60) {
+      // time hasn't even elapsed
       return;
     }
-    console.log('Wrapping up session');
-    this.sessionTimerSubscription.unsubscribe();
-    this.currSession.taskName = this.currTaskName;
-    // sessionElapsedTime: this.sessionLength * 60 - this.timeLeft,
-    this.sessions.push(this.currSession);
+    console.log('Wrapping up pom');
+    this.pomodoroSubscription.unsubscribe();
+    this.currPom.taskName = this.currTaskName;
+    this.poms.push(this.currPom);
     this.pomodoroRunning = false;
-    this.breakRunning = false;
 
     // reset vars
     this.timerPaused = true;
-    this.currSession = null;
+    this.currPom = null;
     this.timeLeft = null;
     this.currTaskName = '';
   }
-
-  private startBreakTimer() {}
 
   renderTimeHmmss(d: number) {
     if (d > 0) {

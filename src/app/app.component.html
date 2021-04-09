@@ -41,7 +41,7 @@
     <div class="col-12">
       <div class="timer" (click)="timerStartPause()">
         <div *ngIf="pomodoroRunning && !timerPaused">
-          <p class="title">{{ sessionType }}</p>
+          <p class="title">{{ timerType }}</p>
           <p>
             {{ timeRemainingRendered }}
           </p>
@@ -58,11 +58,11 @@
         <div class="title" *ngIf="!pomodoroRunning">Start New</div>
       </div>
     </div>
-    <div *ngIf="currSession" class="col-12 mt-4">
-      <button (click)="wrapUpSession()" class="btn btn-md btn-outline-danger">
+    <div *ngIf="currPom" class="col-12 mt-4">
+      <button (click)="wrapUpPom()" class="btn btn-md btn-outline-danger">
         Wrap up Session early
       </button>
-      {{ currSession | json }}
+      {{ currPom | json }}
     </div>
   </section>
 
@@ -80,23 +80,23 @@
           <th scope="col">Productivity</th>
         </thead>
         <tbody>
-          <tr *ngFor="let sesh of sessions; let i = index">
-            <td>Session {{ i + 1 }} {{ sesh | json }}</td>
-            <td>{{ sesh.taskName }}</td>
+          <tr *ngFor="let p of poms; let i = index">
+            <td>Pomodoro {{ i + 1 }} {{ p | json }}</td>
+            <td>{{ p.taskName }}</td>
             <td>
-              {{ renderTimeHmmss(sesh.sessionElapsedTime) }}
+              {{ renderTimeHmmss(p.sessionElapsedTime) }}
             </td>
             <td>
-              {{ renderTimeHmmss(sesh.breakElapsedTime) }}
+              {{ renderTimeHmmss(p.breakElapsedTime) }}
             </td>
             <td>
-              {{ sesh.focusLevel }}
+              {{ p.focusLevel }}
             </td>
             <td>
-              {{ sesh.stressLevel }}
+              {{ p.stressLevel }}
             </td>
             <td>
-              {{ sesh.productivityLevel }}
+              {{ p.productivityLevel }}
             </td>
           </tr>
         </tbody>
