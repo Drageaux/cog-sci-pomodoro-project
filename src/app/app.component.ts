@@ -51,6 +51,16 @@ export class AppComponent {
   fillHeight = 0;
 
   constructor() {
+    this.poms = localStorage.getItem('poms')
+      ? JSON.parse(localStorage.getItem('poms'))
+      : [];
+    try {
+      this.poms.every((e) => e);
+    } catch {
+      console.warn('Could not parse saved Pomodoros in local storage.');
+      this.poms = [];
+    }
+
     this.$sessionTimer = interval(1000).pipe(
       takeWhile(
         () =>
@@ -187,6 +197,7 @@ export class AppComponent {
     this.currPom.taskName = this.currTaskName;
     this.poms.push(this.currPom);
     this.pomodoroRunning = false;
+    localStorage.setItem('poms', JSON.stringify(this.poms));
 
     // reset vars
     this.timerPaused = true;
@@ -220,7 +231,7 @@ export class AppComponent {
   /*************************************************************************/
   /****************************** FIELD INPUTS *****************************/
   /*************************************************************************/
-  updateRangeChange(e) {
-    console.log(e);
+  clearStorage() {
+    localStorage.removeItem('poms');
   }
 }
