@@ -32,6 +32,7 @@ span {
 }
 
 .timer {
+  user-select: none;
   margin: 0 auto;
   text-align: center;
   width: 300px;
@@ -51,8 +52,9 @@ span {
     left: 0;
     right: 0;
     border-radius: 50%;
-    z-index: 2;
+    z-index: -1;
     border: 4px solid #333;
+    background: rgba(0, 0, 0, 0.25);
   }
 }
 .fill {
@@ -62,7 +64,10 @@ span {
   bottom: 0;
   right: 0;
   left: 0;
-  z-index: -1;
+  z-index: -2;
+  &.break {
+    background: #e88b8b;
+  }
 }
 .title {
   text-align: center;
@@ -71,4 +76,14 @@ span {
 
 .hide {
   visibility: hidden;
+}
+
+@media print {
+  .table-dark {
+    td,
+    th {
+      background-color: inherit !important;
+      border-color: #454d55 !important;
+    }
+  }
 }

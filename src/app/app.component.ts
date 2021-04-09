@@ -17,9 +17,9 @@ class Pomodoro {
   taskName: string = '';
   sessionElapsedTime: number = 0; // in seconds
   breakElapsedTime: number = 0; // in seconds
-  productivityLevel?: number; // out of 5
-  stressLevel?: number; // out of 5
-  focusLevel?: number; // out of 5
+  productivityLevel?: number = 3; // out of 5
+  stressLevel?: number = 3; // out of 5
+  focusLevel?: number = 3; // out of 5
 }
 
 @Component({
@@ -49,7 +49,6 @@ export class AppComponent {
 
   // styling
   fillHeight = 0;
-  fillColor = '#7de891';
 
   constructor() {
     this.$sessionTimer = interval(1000).pipe(
@@ -87,6 +86,9 @@ export class AppComponent {
     );
   }
 
+  /*************************************************************************/
+  /********************************* TIMER *********************************/
+  /*************************************************************************/
   breakIncrement(val: number) {
     this.breakLength += val;
   }
@@ -127,7 +129,7 @@ export class AppComponent {
       this.timerType == TimerType.SESSION
         ? this.sessionLength
         : this.breakLength;
-    this.timeLeft = minutes;
+    this.timeLeft = minutes * 60;
   }
 
   private startPomodoro() {
@@ -159,9 +161,13 @@ export class AppComponent {
     });
   }
 
+  /*************************************************************************/
+  /******************************** HELPERS ********************************/
+  /*************************************************************************/
   public wrapUpSession() {
     if (this.timerType === TimerType.SESSION) {
       this.timeLeft = 0;
+      this.timerPaused = false;
     }
   }
 
@@ -186,6 +192,7 @@ export class AppComponent {
     this.timerPaused = true;
     this.currPom = null;
     this.timeLeft = null;
+    this.fillHeight = 0;
     this.currTaskName = '';
   }
 
@@ -208,5 +215,12 @@ export class AppComponent {
 
   get timeRemainingRendered() {
     return this.renderTimeHmmss(this.timeLeft);
+  }
+
+  /*************************************************************************/
+  /****************************** FIELD INPUTS *****************************/
+  /*************************************************************************/
+  updateRangeChange(e) {
+    console.log(e);
   }
 }
