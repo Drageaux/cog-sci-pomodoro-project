@@ -9,10 +9,11 @@ enum SessionType {
 
 class Session {
   taskName: string = '';
-  sessionElapsedTime: number;
-  breakElapsedTime?: number;
-  stressLevel?: number;
-  taskDifficultyLevel?: number;
+  sessionElapsedTime: number; // in seconds
+  breakElapsedTime?: number; // in seconds
+  productivityLevel?: number; // out of 5
+  stressLevel?: number; // out of 5
+  taskDifficultyLevel?: number; // out of 5
 }
 
 @Component({
@@ -93,10 +94,9 @@ export class AppComponent {
       (e) => console.log(e),
       (err) => console.error(err),
       () => {
-        // if (this.timeLeft <= 0) {
-        //   this.sessions.push(this.currSession);
-        // }
-        this.wrapUpSession();
+        if (this.timeLeft <= 0 || !this.sessionRunning) {
+          this.wrapUpSession();
+        }
         console.log('Timer finished');
       }
     );
