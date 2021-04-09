@@ -124,7 +124,7 @@ export class AppComponent {
       this.sessionType == SessionType.SESSION
         ? this.sessionLength
         : this.breakLength;
-    this.timeLeft = minutes;
+    this.timeLeft = minutes - 1;
   }
 
   private startObservableTimer(sub: Subscription) {

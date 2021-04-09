@@ -6,7 +6,7 @@
     <div class="row settings" [class.hide]="pomodoroRunning">
       <div class="break col-12">
         <p>BREAK LENGTH</p>
-        <button (click)="breakLength && breakIncrement(-1)" class="minus">
+        <button (click)="breakLength > 1 && breakIncrement(-1)" class="minus">
           -
         </button>
         <span class="time">{{ breakLength }}</span>
@@ -15,13 +15,13 @@
       <div class="session col-12">
         <p>SESSION LENGTH</p>
         <button
-          (click)="sessionLength > 0 && sessionIncrement(-1)"
+          (click)="sessionLength > 5 && sessionIncrement(-5)"
           class="minus"
         >
           -
         </button>
         <span class="time">{{ sessionLength }}</span>
-        <button (click)="sessionIncrement(1)" class="plus">+</button>
+        <button (click)="sessionIncrement(5)" class="plus">+</button>
       </div>
 
       <form class="col-12">
