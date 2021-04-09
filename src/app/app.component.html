@@ -1,9 +1,9 @@
-<h2>Pomodoro Timer</h2>
+<h2>{{ title }}</h2>
 <main class="text-white">
   <br />
   <!-- Settings -->
   <header>
-    <div class="row settings" [class.hide]="!timerPaused">
+    <div class="row settings" [class.hide]="sessionRunning">
       <div class="break col-12">
         <p>BREAK LENGTH</p>
         <button (click)="timerPaused && breakIncrement(-1)" class="minus">
@@ -51,8 +51,16 @@
             class="fill"
           ></span>
         </div>
-        <div *ngIf="timerPaused">
+        <div
+          *ngIf="sessionRunning && timerPaused"
+          style="
+             {
+              margin-top: 50%;
+            }
+          "
+        >
           <!-- TODO: play button here -->
+          Resume
         </div>
       </div>
     </div>
